@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trouve ta musique 🎵</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #8360c3, #2ebf91);
+      color: white;
+      text-align: center;
+      padding-top: 100px;
+    }
+    input {
+      width: 300px;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      padding: 10px 20px;
+      margin-left: 10px;
+      border: none;
+      background-color: #fff;
+      color: #2ebf91;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    #resultat {
+      margin-top: 30px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 Trouve ta musique</h1>
+  <p>Entre une ou plusieurs phrases de la chanson :</p>
+  <input type="text" id="paroles" placeholder="Ex: 'I got a feeling...'">
+  <button onclick="chercherMusique()">Rechercher</button>
+
+  <div id="resultat"></div>
+
+  <script>
+    async function chercherMusique() {
+      const texte = document.getElementById('paroles').value;
+      const resultat = document.getElementById('resultat');
+
+      if (texte.trim() === '') {
+        resultat.innerHTML = "⚠️ Écris quelque chose d'abord !";
+        return;
+      }
+
+      resultat.innerHTML = "Recherche en cours... 🎧";
+
+      try {
+        // API gratuite Lyrics.ovh pour chercher des chansons sans clé
+        const response = await fetch(`https://api.lyrics.ovh/suggest/${encodeURIComponent(texte)}`);
+        const data = await response.json();
+
+        if (!data.data || data.data.length === 0) {
+          resultat.innerHTML = "😢 Aucun résultat trouvé.";
+          return;
+        }
+
+        // Affiche les 5 premiers résultats
+        let html = "<h3>Résultats :</h3><ul>";
+        data.data.slice(0, 5).forEach(track => {
+          html += `<li>${track.title} - ${track.artist.name}</li>`;
+        });
+        html += "</ul>";
+        resultat.innerHTML = html;
+
+      } catch (error) {
+        console.error(error);
+        resultat.innerHTML = "❌ Une erreur est survenue, réessaie plus tard.";
+      }
+    }
+  </script>
+</body>
+</html>
